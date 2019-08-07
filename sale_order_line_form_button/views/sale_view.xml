@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="sale_line_button">
+            <field name="name">sale_line_button</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree//field[@name='price_subtotal']" position="after">
+                    <button name="button_details" string="Details" type="object" icon="STOCK_EDIT" />
+                </xpath>
+            </field>
+        </record>
+       <record model="ir.ui.view" id="view_order_line_form2_button">
+            <field name="name">view.order.line.form2.button</field>
+            <field name="model">sale.order.line</field>
+            <field eval="40" name="priority"/>
+            <field name="inherit_id" ref="sale.view_order_line_form2" />
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="after">
+                    <footer invisible="not context.get('view_buttons')">
+                        <button class="oe_highlight" name="button_save_data" string="Save" type="object" />
+                        or
+                        <button class="oe_link" special="cancel" string="Cancel" />
+                    </footer>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

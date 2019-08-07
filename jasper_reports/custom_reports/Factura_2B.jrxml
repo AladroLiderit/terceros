@@ -1,0 +1,804 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Factura_2" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="505"/>
+	<parameter name="CUSTOMER_ID" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/odoo/v8/oca/jasper_reports/custom_reports/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SHIPPING_ID" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+	</parameter>
+	<parameter name="INVTO_ID" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+	</parameter>
+	<parameter name="CUSTBANK_ID" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+	</parameter>
+	<parameter name="INVLINE_ID" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+	</parameter>
+	<parameter name="IDS" class="java.lang.Object"/>
+	<parameter name="PIDS" class="java.util.List">
+		<defaultValueExpression><![CDATA[$P{IDS}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="FACTURA_ID" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+inv.id as inv_id,
+inv.number as numfact,
+inv.date_invoice as fechafact,
+inv.type as tipofact,
+inv.amount_tax as total_iva,
+inv.amount_untaxed as total_base,
+inv.amount_total as total_fact,
+inv.residual as saldo,
+inv.comment as nota_fact,
+inv.refund_invoices_description,
+inv.partner_id,
+inv.address_shipping_id as ship_partner,
+pay_term.note as plazo,
+pay_mode.note as modo_pago,
+eqvtas.name as equipovt,
+lines.name as descripcion,
+lines.id as line_id,
+lines.quantity as cantidad,
+lines.price_unit as precio_ud,
+lines.price_subtotal as subtotal_linea,
+lines.discount as dto,
+lines.origin as origen,
+albaran.name as albaran,
+albaran.min_date as fecha_albaran,
+cliente.ref as numcliente
+from account_invoice inv
+join account_invoice_line lines
+on lines.invoice_id = inv.id
+left join crm_case_section eqvtas
+on inv.section_id = eqvtas.id
+left join payment_mode pay_mode
+on inv.payment_mode_id = pay_mode.id
+left join account_payment_term pay_term
+on pay_term.id = inv.payment_term
+join res_partner cliente
+on inv.partner_id = cliente.id
+join sale_order_line_invoice_rel sale_rel
+on sale_rel.invoice_id = lines.id
+join sale_order_line order_line
+on sale_rel.order_line_id = order_line.id
+join sale_order pedido
+on pedido.id = order_line.order_id
+join stock_picking albaran
+on pedido.procurement_group_id = albaran.group_id
+WHERE
+$X{ IN ,inv.id,PIDS}
+order by inv.id, albaran.name, lines.id]]>
+	</queryString>
+	<field name="inv_id" class="java.lang.Integer"/>
+	<field name="numfact" class="java.lang.String"/>
+	<field name="fechafact" class="java.sql.Date"/>
+	<field name="tipofact" class="java.lang.String"/>
+	<field name="total_iva" class="java.math.BigDecimal"/>
+	<field name="total_base" class="java.math.BigDecimal"/>
+	<field name="total_fact" class="java.math.BigDecimal"/>
+	<field name="saldo" class="java.math.BigDecimal"/>
+	<field name="nota_fact" class="java.lang.String"/>
+	<field name="refund_invoices_description" class="java.lang.String">
+		<fieldDescription><![CDATA[Refund invoices description]]></fieldDescription>
+	</field>
+	<field name="partner_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Customer]]></fieldDescription>
+	</field>
+	<field name="ship_partner" class="java.lang.Integer"/>
+	<field name="plazo" class="java.lang.String"/>
+	<field name="modo_pago" class="java.lang.String"/>
+	<field name="equipovt" class="java.lang.String"/>
+	<field name="descripcion" class="java.lang.String">
+		<fieldDescription><![CDATA[Descripcion]]></fieldDescription>
+	</field>
+	<field name="line_id" class="java.lang.Integer"/>
+	<field name="cantidad" class="java.math.BigDecimal"/>
+	<field name="precio_ud" class="java.math.BigDecimal"/>
+	<field name="subtotal_linea" class="java.math.BigDecimal"/>
+	<field name="dto" class="java.math.BigDecimal"/>
+	<field name="origen" class="java.lang.String"/>
+	<field name="albaran" class="java.lang.String"/>
+	<field name="fecha_albaran" class="java.sql.Timestamp"/>
+	<field name="numcliente" class="java.lang.String"/>
+	<variable name="subtotal_albaran" class="java.math.BigDecimal" resetType="Group" resetGroup="Albaran" calculation="Sum">
+		<variableExpression><![CDATA[$F{subtotal_linea}]]></variableExpression>
+	</variable>
+	<variable name="sumDtos" class="java.math.BigDecimal" resetType="Group" resetGroup="ID" calculation="Sum">
+		<variableExpression><![CDATA[$F{dto}]]></variableExpression>
+	</variable>
+	<group name="ID" isStartNewPage="true" isResetPageNumber="true" isReprintHeaderOnEachPage="true" footerPosition="ForceAtBottom">
+		<groupExpression><![CDATA[$F{inv_id}]]></groupExpression>
+		<groupHeader>
+			<band height="251">
+				<image>
+					<reportElement mode="Transparent" x="22" y="0" width="193" height="107"/>
+					<imageExpression><![CDATA["/opt/odoo/Frozen_Logo-01.png"]]></imageExpression>
+				</image>
+				<staticText>
+					<reportElement x="18" y="141" width="200" height="12"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="9"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[CIF / NIF: B52534591]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="18" y="107" width="200" height="12"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="9"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Plg.de Granda 2 C/Los Robles Nº 7]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="18" y="93" width="158" height="15"/>
+					<textElement textAlignment="Center">
+						<font fontName="DejaVu Sans" size="12" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[FROZEN ASTUR S.L.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="18" y="130" width="200" height="12"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="9"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[TEL.: 985 757 179]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="18" y="152" width="200" height="12"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="9"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[frozen@frozenastur.com]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="18" y="119" width="200" height="12"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="9"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[33199 Granda. Siero  -  Asturias]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="59" y="173" width="100" height="12"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="8"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{equipovt}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="1" y="173" width="58" height="12"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="8" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Comercial:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="177" y="200" width="54" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" size="8" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Cliente]]></text>
+				</staticText>
+				<textField pattern="dd/MM/yy">
+					<reportElement x="177" y="215" width="54" height="15"/>
+					<box>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" size="10"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{numcliente}]]></textFieldExpression>
+				</textField>
+				<textField pattern="dd/MM/yy">
+					<reportElement x="101" y="215" width="76" height="15"/>
+					<box>
+						<bottomPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" size="10"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fechafact}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Opaque" x="1" y="200" width="100" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" size="8" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Nº Factura]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="1" y="215" width="100" height="15"/>
+					<box>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" size="10"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{numfact}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Opaque" x="101" y="200" width="76" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" size="8" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Fecha]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="433" y="235" width="50" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.0"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[% IVA]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="96" y="235" width="233" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.0"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[[Código]  Descripción]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="483" y="235" width="53" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.0"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Total]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="53" y="235" width="43" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.0"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Ctd.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="1" y="235" width="52" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Lote]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="329" y="235" width="54" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.0"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[PVP]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="251" y="153" width="285" height="15" backcolor="#CCCCCC"/>
+					<textElement>
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Dirección de Envío]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="251" y="25" width="285" height="15" backcolor="#CCCCCC"/>
+					<textElement>
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Datos del Cliente]]></text>
+				</staticText>
+				<rectangle>
+					<reportElement mode="Transparent" x="251" y="40" width="285" height="110"/>
+				</rectangle>
+				<rectangle>
+					<reportElement mode="Transparent" x="251" y="168" width="285" height="62"/>
+				</rectangle>
+				<subreport>
+					<reportElement x="257" y="42" width="277" height="105"/>
+					<subreportParameter name="CUSTOMER_ID">
+						<subreportParameterExpression><![CDATA[$F{partner_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "Factura_2B_subreportCliente.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="257" y="171" width="277" height="57"/>
+					<subreportParameter name="SHIPPING_ID">
+						<subreportParameterExpression><![CDATA[$F{ship_partner}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "Factura_2B_subreportShip.jasper"]]></subreportExpression>
+				</subreport>
+				<textField isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="383" y="235" width="50" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+					</box>
+					<textElement>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($V{sumDtos}.signum()==0)?" ":"Dto."]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="351" y="0" width="185" height="12"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="8"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[("out_refund".equals($F{tipofact})?$F{refund_invoices_description}:" ")]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="251" y="0" width="100" height="12"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="8"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[("out_refund".equals($F{tipofact})?"Causa Rectificación:":" ")]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="251" y="12" width="100" height="12"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="8"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[("out_refund".equals($F{tipofact})?"Factura Rectificada:":" ")]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="172">
+				<staticText>
+					<reportElement x="12" y="4" width="54" height="14">
+						<printWhenExpression><![CDATA[$F{nota_fact}.length()>0]]></printWhenExpression>
+					</reportElement>
+					<textElement>
+						<font fontName="DejaVu Sans" size="9" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[NOTAS:]]></text>
+				</staticText>
+				<textField isBlankWhenNull="true">
+					<reportElement x="66" y="4" width="469" height="12" isRemoveLineWhenBlank="true"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="8"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{nota_fact}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" mode="Opaque" x="421" y="22" width="115" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Total Factura]]></text>
+				</staticText>
+				<rectangle>
+					<reportElement positionType="Float" stretchType="RelativeToBandHeight" mode="Transparent" x="99" y="37" width="322" height="42"/>
+				</rectangle>
+				<staticText>
+					<reportElement positionType="Float" mode="Opaque" x="1" y="22" width="98" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Base Imponible]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" mode="Opaque" x="219" y="22" width="101" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.0"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Base]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" mode="Opaque" x="99" y="22" width="120" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Impuestos]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" mode="Opaque" x="320" y="22" width="101" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.0"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Cuota]]></text>
+				</staticText>
+				<rectangle>
+					<reportElement positionType="Float" stretchType="RelativeToBandHeight" mode="Transparent" x="421" y="37" width="115" height="42"/>
+				</rectangle>
+				<rectangle>
+					<reportElement positionType="Float" stretchType="RelativeToBandHeight" mode="Transparent" x="1" y="37" width="98" height="42"/>
+				</rectangle>
+				<textField pattern="#,##0.00 ¤ ">
+					<reportElement positionType="Float" x="474" y="84" width="61" height="15"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" size="9"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{saldo}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" x="420" y="84" width="54" height="14"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" size="9" isBold="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Saldo Pte.:]]></text>
+				</staticText>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement x="1" y="37" width="98" height="42"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{total_base}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00 ¤ ">
+					<reportElement x="421" y="37" width="115" height="42"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{total_fact}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" mode="Opaque" x="1" y="103" width="535" height="15" backcolor="#CCCCCC"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Condiciones de pago]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="271" y="122" width="70" height="12"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" size="8" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Vencimientos:]]></text>
+				</staticText>
+				<rectangle>
+					<reportElement positionType="Float" mode="Transparent" x="1" y="118" width="535" height="50"/>
+				</rectangle>
+				<staticText>
+					<reportElement positionType="Float" x="10" y="122" width="83" height="12"/>
+					<textElement>
+						<font fontName="DejaVu Sans" size="8" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Forma de pago:]]></text>
+				</staticText>
+				<textField isBlankWhenNull="true">
+					<reportElement positionType="Float" x="102" y="123" width="160" height="12"/>
+					<textElement textAlignment="Center">
+						<font fontName="DejaVu Sans" size="8"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{modo_pago}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement positionType="Float" x="102" y="139" width="160" height="12"/>
+					<textElement textAlignment="Center">
+						<font fontName="DejaVu Sans" size="8"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{plazo}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" x="10" y="154" width="83" height="12"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" size="8" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[CC:]]></text>
+				</staticText>
+				<subreport>
+					<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="110" y="37" width="300" height="43"/>
+					<subreportParameter name="INVTO_ID">
+						<subreportParameterExpression><![CDATA[$F{inv_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "Factura_2B_subreportTaxes.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="101" y="154" width="200" height="12"/>
+					<subreportParameter name="CUSTBANK_ID">
+						<subreportParameterExpression><![CDATA[$F{partner_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "Factura_2B_subreportBankCliente.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement positionType="Float" x="343" y="122" width="191" height="43"/>
+					<subreportParameter name="INVTO_ID">
+						<subreportParameterExpression><![CDATA[$F{inv_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "Factura_2B_subreportVtos.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="Albaran">
+		<groupExpression><![CDATA[$F{albaran}]]></groupExpression>
+		<groupHeader>
+			<band height="25">
+				<textField pattern="dd/MM/yy">
+					<reportElement x="285" y="6" width="58" height="15"/>
+					<textElement>
+						<font fontName="DejaVu Sans"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fecha_albaran}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="93" y="6" width="138" height="15"/>
+					<textElement>
+						<font fontName="DejaVu Sans"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{albaran}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="231" y="6" width="50" height="15"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Fecha:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="10" y="6" width="76" height="15"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Nº Albarán:]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="30">
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement x="458" y="8" width="78" height="15"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{subtotal_albaran}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="108" y="8" width="350" height="15"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Total albarán "+$F{albaran}+":"]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="30" splitType="Stretch">
+			<textField>
+				<reportElement mode="Opaque" x="0" y="7" width="555" height="15" backcolor="#CCCCCC"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Sans" size="12" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[("out_invoice".equals($F{tipofact}) ? "FACTURA" : (("out_refund".equals( $F{tipofact}))? "FACTURA RECTIFICATIVA" : "ERROR DE DOCUMENTO"))]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="21" splitType="Stretch">
+			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
+				<reportElement x="385" y="5" width="48" height="12"/>
+				<textElement textAlignment="Center">
+					<font fontName="DejaVu Sans" size="10"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{dto}.doubleValue()==0.0)?' ':$F{dto}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="97" y="5" width="230" height="12"/>
+				<textElement>
+					<font fontName="DejaVu Sans" size="10"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0;-###0">
+				<reportElement x="60" y="5" width="28" height="12"/>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="10"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="328" y="5" width="54" height="12"/>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="10"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{precio_ud} == null) ? 0 : $F{precio_ud}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="485" y="5" width="50" height="12"/>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" size="10"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{subtotal_linea} == null? 0 : $F{subtotal_linea}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement stretchType="RelativeToBandHeight" x="435" y="5" width="48" height="12"/>
+				<subreportParameter name="INVLINE_ID">
+					<subreportParameterExpression><![CDATA[$F{line_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "Factura_2B_subreportLineTax.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="52" splitType="Prevent">
+			<staticText>
+				<reportElement x="0" y="39" width="535" height="12"/>
+				<textElement textAlignment="Center">
+					<font fontName="DejaVu Sans" size="7" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Datos Registrales: INSCRITA EN EL REGISTRO MERCANTIL DE ASTURIAS, tomo 4156, folio 44, inscripción 1ª hoja AS-48716]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="3" width="535" height="30"/>
+				<textElement textAlignment="Justified">
+					<font fontName="DejaVu Sans" size="5"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[De conformidad con lo que establece la Ley Organica 15/1999 de Protección de Datos de Carácter Personal, le informamos que sus datos personales seran incluidos dentro de un fichero automatizado bajo la responsabilidad de FROZEN ASTUR S.L. con la finalidad de poder atender los compromisos derivados de la relación que mantenemos con usted. Puede ejercer sus derechos de acceso, cancelación, rectificación y oposición mediante un escrito a la dirección Poligono Granda, 2 c/ Los Robles, 7 Granda - Siero 33199 Asturias. Si en el plazo de 30 dias no nos comunica lo contrario, entenderemos que los datos no han sido modificados, que se compromete a notificarnos cualquier variación y que tenemos el consentimiento para utilizarlos a fin de poder  fidelizar la relación entre las partes y enviarle aquella información que consideremos pueda ser de su interés.   ]]></text>
+			</staticText>
+			<line>
+				<reportElement x="1" y="36" width="535" height="1"/>
+			</line>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>
