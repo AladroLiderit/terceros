@@ -1,23 +1,8 @@
+# -*- coding: utf-8 -*-
+# (c) 2015 Daniel Campos - AvanzOSC
+# License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0.html
 
-# -*- encoding: utf-8 -*-
-##############################################################################
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published
-#    by the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see http://www.gnu.org/licenses/.
-#
-##############################################################################
-
-
+from openerp.addons import decimal_precision as dp
 from openerp import models, fields, _
 
 
@@ -42,7 +27,7 @@ class Machinery(models.Model):
     manufacturer = fields.Many2one(
         comodel_name='res.partner', related='product.manufacturer',
         readonly=True, help="Manufacturer is related to the associated product"
-        " defined for the machine.")
+        " defined for the machine.", store=True)
     serial_char = fields.Char('Product Serial #')
     serial = fields.Many2one('stock.production.lot', string='Product Serial #',
                              domain="[('product_id', '=', product)]")
@@ -82,8 +67,8 @@ class Machinery(models.Model):
                                help="This association is necessary if you want"
                                " to make repair orders with the machine")
     enrolldate = fields.Date('Enrollment date', required=True,
-                             default=lambda
-                             self: fields.Date.context_today(self))
+                             default=lambda self: fields.Date.context_today(
+                                 self))
     ambit = fields.Selection([('local', 'Local'), ('national', 'National'),
                               ('international', 'International')],
                              'Ambit', default='local')
@@ -96,6 +81,10 @@ class Machinery(models.Model):
     policy = fields.Char('Machine policy')
     users = fields.One2many('machinery.users', 'machine', 'Machine Users')
     power = fields.Char('Power (Kw)')
+    product_categ = fields.Many2one('product.category', 'Internal category',
+                                    related='product.categ_id', store=True)
+    salvage_value = fields.Float('Salvage Value',
+                                 digits=dp.get_precision('Product Price'))
 
 
 class MachineryUsers(models.Model):

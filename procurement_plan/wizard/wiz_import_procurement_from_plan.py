@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-# For copyright and license notices, see __openerp__.py file in root directory
-##############################################################################
+# (c) 2015 Alfredo de la Fuente - AvanzOSC
+# License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0.html
 from openerp import models, fields, api
 
 
@@ -20,6 +19,7 @@ class WizImportProcurementFromPlan(models.TransientModel):
 
     @api.model
     def default_get(self, var_fields):
+        super(WizImportProcurementFromPlan, self).default_get(var_fields)
         plan = self.env['procurement.plan'].browse(
             self.env.context['active_id'])
         return {'from_date': plan.from_date,

@@ -127,11 +127,11 @@ class StockPlanning(models.Model):
     scheduled_date = fields.Date('Scheduled date')
     product = fields.Many2one('product.product', 'Product', translate=True)
     unit_cost_price = fields.Float(
-        'Variant Cost Price', related='product.cost_price',
+        'Variant Cost Price', related='product.standard_price',
         digits_compute=dp.get_precision('Product Price'))
     category = fields.Many2one(
-        'product.category', 'category', related='product.categ_id',
-        store=True, translate=True)
+        'product.category', string='category', related='product.categ_id',
+        store=True)
     qty_available = fields.Float(
         'Quantity On Hand', compute='_get_product_info_location',
         digits_compute=dp.get_precision('Product Unit of Measure'))

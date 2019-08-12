@@ -11,10 +11,12 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def unlink(self):
-        if any([x and x != 'cancel' for x in
-                self.mapped('invoice_line.picking_id.state')]):
+        if (any([x and x != 'cancel' for x in
+                self.mapped('invoice_line.picking_id.state')]) and
+                any([x.state != 'cancel' for x in self])):
             raise exceptions.Warning(
-                _('Before deleting invoice should cancel the picking(s): %s')
+                _('Before deleting invoices you should cancel them or cancel '
+                  'next picking(s): %s.')
                 % self.mapped('invoice_line.picking_id.name'))
         return super(AccountInvoice, self).unlink()
 
@@ -23,6 +25,14 @@ class AccountInvoice(models.Model):
         res = super(AccountInvoice, self).action_cancel()
         self.mapped('invoice_line.picking_id').write(
             {'invoice_state': '2binvoiced'})
+        return res
+
+    @api.multi
+    def action_cancel_draft(self):
+        # go from canceled state to draft state
+        res = super(AccountInvoice, self).action_cancel_draft()
+        self.mapped('invoice_line.picking_id').write(
+            {'invoice_state': 'invoiced'})
         return res
 
 

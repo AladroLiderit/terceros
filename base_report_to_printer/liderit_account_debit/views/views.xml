@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<openerp>
+   <data>
+
+   <record id="account_account_debit2_form" model="ir.ui.view">
+            <field name="name">account debit2 form view</field>
+            <field name="model">account.account</field>
+            <field name="inherit_id" ref="account.view_account_form"/>
+            <field name="arch" type="xml">                
+                 <xpath expr="//field[@name='debit']" position="before">
+                    <field name="debit" />
+                    
+
+                </xpath>
+            </field>
+        </record>   
+        
+    </data>
+</openerp>

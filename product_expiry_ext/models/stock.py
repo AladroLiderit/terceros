@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 # For copyright and license notices, see __openerp__.py file in root directory
 ##############################################################################
@@ -46,6 +46,7 @@ class StockProductioLot(models.Model):
                    ('to_remove', 'To remove'),
                    ('best_before', 'After the best before')],
         string='Expiry state')
+    mrp_date = fields.Date(string='Manufacturing Date')
 
 
 class StockQuant(models.Model):

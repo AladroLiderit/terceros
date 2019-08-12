@@ -4,12 +4,13 @@
 # 
 # Translators:
 # danimaribeiro <danimaribeiro@gmail.com>, 2015
+# danimaribeiro <danimaribeiro@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: odoomrp-utils (8.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-08 08:45+0000\n"
-"PO-Revision-Date: 2015-10-09 02:20+0000\n"
+"POT-Creation-Date: 2015-11-16 11:58+0000\n"
+"PO-Revision-Date: 2015-11-18 18:01+0000\n"
 "Last-Translator: danimaribeiro <danimaribeiro@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/oca/odoomrp-utils-8-0/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -350,7 +351,7 @@ msgstr "Semana"
 #: model:ir.actions.act_window,name:stock_planning.action_wiz_stock_planning
 #: model:ir.model,name:stock_planning.model_wiz_stock_planning
 msgid "Wiz Stock Planning"
-msgstr ""
+msgstr "Wizard Planejamento de estoque"
 
 #. module: stock_planning
 #: model:ir.ui.menu,name:stock_planning.wiz_stock_planning_option_view

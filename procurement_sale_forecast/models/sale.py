@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -66,7 +66,7 @@ class ProcurementSaleForecast(models.Model):
                         'product_uom': product_line.product_id.uom_id.id,
                         'location_id': record.warehouse_id.lot_stock_id.id,
                         'company_id': record.warehouse_id.company_id.id,
-                        'warehouse_id': record.warehouse_id.id,
+                        'warehouse_id': record.warehouse_id.id
                     })
                     procure_id.signal_workflow('button_confirm')
                     procure_lst.append(procure_id.id)
@@ -123,6 +123,12 @@ class ProcurementSaleForecastLine(models.Model):
     subtotal = fields.Float('Subtotal', compute=_get_subtotal, store=True,
                             digits_compute=dp.get_precision('Product Price'))
     partner_id = fields.Many2one("res.partner", string="Partner")
+    commercial_id = fields.Many2one(comodel_name="res.users",
+                                    related="partner_id.user_id",
+                                    string="Commercial")
+    currency_id = fields.Many2one(
+        comodel_name="res.currency", string="Currency",
+        related="partner_id.property_product_pricelist.currency_id")
     date_from = fields.Date(string="Date from", store=True,
                             related="forecast_id.date_from")
     date_to = fields.Date(string="Date to", related="forecast_id.date_to",
@@ -152,3 +158,10 @@ class ProcurementSaleForecastLine(models.Model):
                 'type': 'ir.actions.act_window',
                 'target': 'new',
                 }
+
+
+class SaleOrder(models.Model):
+    _inherit = 'sale.order'
+
+    include_in_forecast = fields.Boolean(
+        string='Include in forecast', default=True)

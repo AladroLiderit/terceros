@@ -1,23 +1,7 @@
-# -*- encoding: utf-8 -*-
-##############################################################################
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published
-#    by the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see http://www.gnu.org/licenses/.
-#
-##############################################################################
+# -*- coding: utf-8 -*-
+# License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0.html
 
 from openerp import models, api
-import math
 
 
 class MrpProduction(models.Model):
@@ -35,12 +19,6 @@ class MrpProduction(models.Model):
 
     def _get_workorder_in_product_lines(self, workcenter_lines, product_lines,
                                         properties=None):
-        for workorder in workcenter_lines:
-            wc = workorder.routing_wc_line
-            cycle = wc.cycle_nbr and int(math.ceil(self.product_qty /
-                                                   wc.cycle_nbr)) or 0
-            workorder.cycle = cycle
-            workorder.hour = wc.hour_nbr * cycle
         for p_line in product_lines:
             self._set_workorder(self.bom_id, p_line, workcenter_lines,
                                 properties=properties)
@@ -48,9 +26,9 @@ class MrpProduction(models.Model):
     def _set_workorder(self, bom, p_line, workcenter_lines, properties=None):
         phantom_op = self.env.context.get('phantom_op', False)
         for bom_line in bom.bom_line_ids:
-            if ((bom_line.product_template.id == p_line.product_template.id or
+            if ((bom_line.product_tmpl_id.id == p_line.product_tmpl_id.id or
                     bom_line.product_id.product_tmpl_id.id ==
-                    p_line.product_template.id) and
+                    p_line.product_tmpl_id.id) and
                     (not bom_line.product_id or
                      bom_line.product_id.id == p_line.product_id.id)):
                 for wc_line in workcenter_lines:
@@ -63,7 +41,7 @@ class MrpProduction(models.Model):
                 bom_obj = self.env['mrp.bom']
                 if not bom_line.product_id:
                     bom_id = bom_obj._bom_find(
-                        product_tmpl_id=bom_line.product_template.id,
+                        product_tmpl_id=bom_line.product_tmpl_id.id,
                         properties=properties)
                 else:
                     bom_id = bom_obj._bom_find(

@@ -21,7 +21,7 @@
     "version": "1.0",
     "depends": [
         "mrp_packaging",
-        "mrp_project_link",
+        "mrp_project_link_mto",
     ],
     "author": "OdooMRP team,"
               "AvanzOSC,"
@@ -34,6 +34,6 @@
     ],
     "category": "Hidden/Dependency",
     "summary": "Project on packaging manufacturing orders",
-    "installable": True,
+    "installable": False,
     "auto_install": True,
 }
